@@ -14,17 +14,30 @@ const convertBlobToBase64 = blob => new Promise((resolve, reject) => {
 });
 
 app.get('/', async (req, res) => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto('https://news.ycombinator.com', {waitUntil: 'networkidle2'});
-    // page.pdf() is currently supported only in headless mode.
-    // @see https://bugs.chromium.org/p/chromium/issues/detail?id=753118
-    const pdf = await page.pdf({
-      format: 'letter'
-    });
-    await browser.close();
+    try {
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+        const page = await browser.newPage();
+        await page.goto('http://www.example.com/', {
+            waitUntil: 'networkidle2',
+            timeout: 10000
+        });
+        const pdf = await page.pdf({
+            format: 'A4',
+            displayHeaderFooter: true
+        });
+        await browser.close();
 
-    res.send(pdf)
+        res.writeHead(200, {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename=file.pdf',
+            'Content-Length': pdf.length,
+        });
+        res.end(pdf);
+    } catch (err) {
+        res.status(500).send('Unable to print pdf file');
+    }
 
 })
 
