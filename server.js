@@ -2,7 +2,7 @@ const express = require('express')
 const puppeteer = require('puppeteer')
 
 const app = express()
-const port = 8080
+const port = process.env.PORT || 8080
 
 const convertBlobToBase64 = blob => new Promise((resolve, reject) => {
     const reader = new FileReader;
