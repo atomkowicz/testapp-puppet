@@ -36,6 +36,7 @@ app.get('/', async (req, res) => {
         });
         res.end(pdf);
     } catch (err) {
+        console.log(error)
         res.status(500).send('Unable to print pdf file');
     }
 
